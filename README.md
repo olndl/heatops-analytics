@@ -84,8 +84,4 @@ flowchart LR
   H --> W[regional_weather]
 ```
 
-## Notes
 
-The data is synthetic and generated locally. The dashboard and metrics are meant
-to show the shape of an analytics workflow, not to represent real operational
-data.
