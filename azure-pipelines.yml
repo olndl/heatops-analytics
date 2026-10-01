@@ -1,0 +1,46 @@
+trigger:
+  branches:
+    include:
+      - "*"
+
+pr:
+  branches:
+    include:
+      - "*"
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  python.version: "3.12"
+
+steps:
+  - checkout: self
+    displayName: Checkout repository
+
+  - task: UsePythonVersion@0
+    displayName: Use Python $(python.version)
+    inputs:
+      versionSpec: "$(python.version)"
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: Install dependencies
+
+  - script: python scripts/generate_sample_data.py
+    displayName: Generate sample data
+
+  - script: python scripts/build_warehouse.py
+    displayName: Build DuckDB warehouse
+
+  - script: python -m pytest --junitxml=test-results/pytest.xml
+    displayName: Run tests
+
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: test-results/pytest.xml
+      failTaskOnFailedTests: true
